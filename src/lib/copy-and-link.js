@@ -50,6 +50,7 @@ function isNotSample (stats, sampleSize) {
 async function resolveNames (movies) {
   let promise = Promise.resolve()
 
+  const promises = []
   const results = []
 
   movies.forEach((movie) => {
@@ -69,10 +70,11 @@ async function resolveNames (movies) {
         ...answer,
         ...movie
       })
+      promises.push(answer)
       return movie
     })
   })
-  return results
+  return Promise.all(promises)
 }
 
 async function copyAndLink (currentPath, offset, limit, sampleSize) {
