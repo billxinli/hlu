@@ -2,8 +2,6 @@ const disk = require('diskusage')
 
 const homeLabConfig = require('./get-config')
 
-console.log(homeLabConfig)
-
 const { movieMounts } = homeLabConfig
 
 async function parseMovieMounts (mounts) {
@@ -19,9 +17,9 @@ async function parseMovieMounts (mounts) {
 
 async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
-  const movieMounts = await parseMovieMounts(movieMounts)
+  const movieMountsInfo = await parseMovieMounts(movieMounts)
 
-  console.log(movieMounts)
+  console.log(movieMountsInfo)
 
   return arguments
 
