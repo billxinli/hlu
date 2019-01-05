@@ -50,9 +50,7 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
   const mf = await glob('./**/*.+(' + ['mkv'].join('|') + ')', { cwd: currentPath })
 
-  const filteredMf = mf.slice(offset, offset + limit)
-
-  const absPathMf = filteredMf.map(file => path.join(currentPath, file))
+  const absPathMf = mf.map(file => path.join(currentPath, file))
 
   const statMf = await Promise.all(absPathMf.map(getFileStats))
 
