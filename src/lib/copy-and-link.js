@@ -19,7 +19,6 @@ async function parseMovieMounts (mounts) {
   return await Promise.all(mounts.map(async (mount) => {
     return {
       mount,
-      folder: 'movies',
       ...await disk.check(mount)
     }
   }))
@@ -29,6 +28,7 @@ async function getFileStats (file) {
   const result = await asyncLstat(file)
   return {
     path: file,
+    folder: 'movies',
     symlink: result.isSymbolicLink(),
     size: result.size
   }
@@ -91,11 +91,11 @@ async function mapFileToMount (movies) {
   })
 }
 
-async function isNotExistingTarget (movie) {
+async function isNotExistingTarget (stats) {
   const result = {
-    ...movie
+    ...stats
   }
-  const fullPath = path.join(movie.target, movie.folder, nameCleaner(movie.name))
+  const fullPath = path.join(result.target, result.folder, nameCleaner(result.name))
   try {
     const result = await asyncLstat(fullPath)
     result.targetMissing = false
