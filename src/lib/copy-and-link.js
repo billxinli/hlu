@@ -2,6 +2,8 @@ const disk = require('diskusage')
 
 const homeLabConfig = require('./get-config')
 
+console.log(homeLabConfig)
+
 const { movieMounts } = homeLabConfig
 
 async function parseMovieMounts (mounts) {
