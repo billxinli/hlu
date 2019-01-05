@@ -60,7 +60,7 @@ async function resolveNames (movies) {
           name: 'name',
           message: 'Movie name',
           default: async () => searchMovie(movie.path),
-          validate: (value) => value.length.trim() > 0
+          validate: (value) => value.trim().length > 0
         }
       ]
 
