@@ -38,6 +38,10 @@ function isNotSymlink (stats) {
   return !stats.symlink
 }
 
+function isNotSkipped (stats) {
+  return stats.name !== 'skip'
+}
+
 function isNotSample (stats, sampleSize) {
   const sampleSizeBytes = sampleSize * 1024 * 1024 * 1024
 
@@ -85,13 +89,9 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
   const nameMf = await resolveNames(limitMf)
 
-  // var result = Promise.resolve()
-  // tasks.forEach(task => {
-  //   result = result.then(() => task())
-  // })
-  // return result
+  const notSkippedMf = nameMf.filter(isNotSkipped)
 
-  console.log(nameMf)
+  console.log(notSkippedMf)
 //  const movieMountsInfo = await parseMovieMounts(movieMounts)
 
   return arguments
