@@ -42,7 +42,9 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
     }
   }))
 
-  console.log(statMf)
+  const nonSymlinkMf = statMf.filter((mfPath) => !mfPath.symlink)
+
+  console.log(nonSymlinkMf)
 
   const movieMountsInfo = await parseMovieMounts(movieMounts)
 
