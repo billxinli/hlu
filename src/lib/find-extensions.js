@@ -1,6 +1,5 @@
 const path = require('path')
 const util = require('util')
-const _ = require('lodash')
 const inquirer = require('inquirer')
 const globCallback = require('glob')
 

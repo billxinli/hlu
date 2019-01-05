@@ -4,7 +4,8 @@ const path = require('path')
 const findExtensions = require('../lib/find-extensions')
 
 module.exports = {
-  command: 'find-ext',
+  command: 'find-extensions',
+  alias: ['find-ext'],
   describe: 'Find extensions under',
   builder: {
     path: {
