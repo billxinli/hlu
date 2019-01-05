@@ -48,11 +48,12 @@ function isNotSample (stats, sampleSize) {
 }
 
 async function resolveNames (movies) {
+  let promise = Promise.resolve()
 
-  let result = Promise.resolve()
+  const results = []
+
   movies.forEach((movie) => {
-    result = result.then(async () => {
-
+    promise = promise.then(async () => {
       console.log('Processing: ', movie.path)
       const question = [
         {
@@ -63,15 +64,15 @@ async function resolveNames (movies) {
           validate: (value) => value.trim().length > 0
         }
       ]
-
       const answer = await inquirer.prompt(question)
-
-      console.log(answer)
-      return answer
+      results.push({
+        ...answer,
+        ...movie
+      })
+      return movie
     })
   })
-  return result
-
+  return results
 }
 
 async function copyAndLink (currentPath, offset, limit, sampleSize) {
@@ -96,7 +97,7 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
   // })
   // return result
 
-  console.log(limitMf)
+  console.log(nameMf)
 //  const movieMountsInfo = await parseMovieMounts(movieMounts)
 
   return arguments
