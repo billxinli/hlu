@@ -19,6 +19,7 @@ async function parseMovieMounts (mounts) {
   return await Promise.all(mounts.map(async (mount) => {
     return {
       mount,
+      folder: 'movies',
       ...await disk.check(mount)
     }
   }))
@@ -94,7 +95,7 @@ async function isNotExistingTarget (movie) {
   const result = {
     ...movie
   }
-  const fullPath = path.join(movie.target, 'movies', nameCleaner(movie.name))
+  const fullPath = path.join(movie.target, movie.folder, nameCleaner(movie.name))
   try {
     const result = await asyncLstat(fullPath)
     result.targetMissing = false
