@@ -75,6 +75,8 @@ async function resolveNames (movies) {
 
 async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
+  const movieMountsInfo = await parseMovieMounts(movieMounts)
+
   const mf = await glob('./**/*.+(' + ['mkv'].join('|') + ')', { cwd: currentPath })
 
   const absPathMf = mf.map(file => path.join(currentPath, file))
@@ -91,8 +93,21 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
   const notSkippedMf = nameMf.filter(isNotSkipped)
 
-  console.log(notSkippedMf)
-//  const movieMountsInfo = await parseMovieMounts(movieMounts)
+  const mappedTargetMf = notSkippedMf.map((mf) => {
+    const result = {
+      ...mf
+    }
+    movieMountsInfo.some((mount) => {
+      if (mount.available > result.size) {
+        result.target = mount.mount
+        mount.available -= result.size
+        return true
+      }
+    })
+    return result
+  })
+
+  console.log(mappedTargetMf)
 
   return arguments
 
