@@ -97,7 +97,7 @@ async function getTargetStatus (stats) {
   }
   const fullPath = path.join(result.target, result.folder, nameCleaner(result.name))
   try {
-    const result = await asyncLstat(fullPath)
+    await asyncLstat(fullPath)
     result.targetMissing = false
     console.error(`${result.name} already exist on ${fullPath}`)
   } catch (err) {
