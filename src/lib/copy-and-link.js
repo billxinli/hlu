@@ -9,20 +9,19 @@ const Promise = require('bluebird')
 
 const homeLabConfig = require('./get-config')
 const searchMovie = require('./search-movies')
+const nameCleaner = require('./filename-cleaner')
 
 const asyncLstat = util.promisify(fs.lstat)
 const glob = util.promisify(globCallback)
 const { movieMounts } = homeLabConfig
 
 async function parseMovieMounts (mounts) {
-  const results = await Promise.all(mounts.map(async (mount) => {
-    const result = {
+  return await Promise.all(mounts.map(async (mount) => {
+    return {
       mount,
       ...await disk.check(mount)
     }
-    return result
   }))
-  return results
 }
 
 async function getFileStats (file) {
@@ -73,9 +72,39 @@ async function resolveNames (movies) {
   return results
 }
 
-async function copyAndLink (currentPath, offset, limit, sampleSize) {
-
+async function mapFileToMount (movies) {
   const movieMountsInfo = await parseMovieMounts(movieMounts)
+
+  return movies.map((mf) => {
+    const result = {
+      ...mf
+    }
+    movieMountsInfo.some((mount) => {
+      if (mount.available > result.size) {
+        result.target = mount.mount
+        mount.available -= result.size
+        return true
+      }
+    })
+    return result
+  })
+}
+
+async function isNotExistingTarget (movie) {
+  const result = {
+    ...movie
+  }
+  const fullPath = path.join(movie.target, 'movies', nameCleaner(movie.name))
+  try {
+    const result = await asyncLstat(fullPath)
+    result.targetMissing = false
+  } catch (err) {
+    result.targetMissing = true
+  }
+  return result
+}
+
+async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
   const mf = await glob('./**/*.+(' + ['mkv'].join('|') + ')', { cwd: currentPath })
 
@@ -93,21 +122,11 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
   const notSkippedMf = nameMf.filter(isNotSkipped)
 
-  const mappedTargetMf = notSkippedMf.map((mf) => {
-    const result = {
-      ...mf
-    }
-    movieMountsInfo.some((mount) => {
-      if (mount.available > result.size) {
-        result.target = mount.mount
-        mount.available -= result.size
-        return true
-      }
-    })
-    return result
-  })
+  const mappedTargetMf = await mapFileToMount(notSkippedMf)
 
-  console.log(mappedTargetMf)
+  const checkDestinationMf = await Promise.all(mappedTargetMf.map(isNotExistingTarget))
+
+  console.log(checkDestinationMf)
 
   return arguments
 
