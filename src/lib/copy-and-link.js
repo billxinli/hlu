@@ -65,16 +65,15 @@ async function resolveNames (movies) {
           validate: (value) => value.trim().length > 0
         }
       ]
-      const answer = await inquirer.prompt(question)
-      results.push({
-        ...answer,
-        ...movie
-      })
-      promises.push(answer)
+
+      promises.push(inquirer.prompt(question))
       return movie
     })
   })
   return Promise.all(promises)
+    .then((data) => {
+      console.log(data)
+    })
 }
 
 async function copyAndLink (currentPath, offset, limit, sampleSize) {
