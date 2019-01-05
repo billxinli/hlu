@@ -57,7 +57,7 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
   const nonSymlinkMf = statMf.filter(isNotSymlink)
   console.log({ nonSymlinkMf })
   const nonSamples = nonSymlinkMf.filter((stats) => isNotSample(stats, sampleSize))
-  console.log({ nonSamples })
+  console.log({ nonSamples }, nonSamples.length)
 
 //  const movieMountsInfo = await parseMovieMounts(movieMounts)
 
