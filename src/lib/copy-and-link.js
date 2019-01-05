@@ -8,6 +8,7 @@ const globCallback = require('glob')
 
 const homeLabConfig = require('./get-config')
 
+const asyncLstat = util.promisify(fs.lstat)
 const glob = util.promisify(globCallback)
 const { movieMounts } = homeLabConfig
 
@@ -22,7 +23,28 @@ async function parseMovieMounts (mounts) {
   return results
 }
 
-const asyncLstat = util.promisify(fs.lstat)
+async function getFileStats (file) {
+  const result = await asyncLstat(file)
+  return {
+    path: file,
+    symlink: result.isSymbolicLink(),
+    size: result.size
+  }
+}
+
+function isNotSymlink (stats) {
+  return !stats.symlink
+}
+
+function isNotSample (stats, sampleSize) {
+  const sampleSizeBytes = sampleSize * 1024 * 1024 * 1024
+
+  if (stats.path.match(/sample/gi)) {
+    return stats.size > sampleSizeBytes
+  }
+
+  return true
+}
 
 async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
@@ -32,23 +54,14 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
   const absPathMf = filteredMf.map(file => path.join(currentPath, file))
 
-  const statMf = await Promise.all(absPathMf.map(async (mfPath) => {
-    const result = await asyncLstat(mfPath)
-    return {
-      path: mfPath,
-      symlink: result.isSymbolicLink(),
-      size: result.size,
-      result
-    }
-  }))
+  const statMf = await Promise.all(absPathMf.map(getFileStats))
 
-  const nonSymlinkMf = statMf.filter((mfPath) => !mfPath.symlink)
+  const nonSymlinkMf = statMf.filter(isNotSymlink)
 
-  console.log(nonSymlinkMf)
+  const nonSamples = nonSymlinkMf.filter((stats) => isNotSample(stats, sampleSize))
+  console.log(nonSamples)
 
-  const movieMountsInfo = await parseMovieMounts(movieMounts)
-
-  console.log(movieMountsInfo)
+//  const movieMountsInfo = await parseMovieMounts(movieMounts)
 
   return arguments
 
