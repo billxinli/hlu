@@ -5,6 +5,7 @@ const path = require('path')
 const util = require('util')
 const inquirer = require('inquirer')
 const globCallback = require('glob')
+const Promise = require('bluebird')
 
 const homeLabConfig = require('./get-config')
 const searchMovie = require('./search-movies')
@@ -48,32 +49,24 @@ function isNotSample (stats, sampleSize) {
 }
 
 async function resolveNames (movies) {
-  let promise = Promise.resolve()
-
-  const promises = []
-  const results = []
-
-  movies.forEach((movie) => {
-    promise = promise.then(async () => {
-      console.log('Processing: ', movie.path)
-      const question = [
-        {
-          type: 'input',
-          name: 'name',
-          message: 'Movie name',
-          default: async () => searchMovie(movie.path),
-          validate: (value) => value.trim().length > 0
-        }
-      ]
-
-      promises.push(inquirer.prompt(question))
-      return movie
-    })
-  })
-  return Promise.all(promises)
-    .then((data) => {
-      console.log(data)
-    })
+  const results = Promise.map(movies, async (movie) => {
+    console.log('Processing: ', movie.path)
+    const question = [
+      {
+        type: 'input',
+        name: 'name',
+        message: 'Movie name',
+        default: async () => searchMovie(movie.path),
+        validate: (value) => value.trim().length > 0
+      }
+    ]
+    const answer = await inquirer.prompt(question)
+    return {
+      ...answer,
+      ...movie
+    }
+  }, { concurrency: 1 })
+  return results
 }
 
 async function copyAndLink (currentPath, offset, limit, sampleSize) {
