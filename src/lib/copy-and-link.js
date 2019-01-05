@@ -91,7 +91,7 @@ async function mapFileToMount (movies) {
   })
 }
 
-async function isNotExistingTarget (stats) {
+async function getTargetStatus (stats) {
   const result = {
     ...stats
   }
@@ -99,10 +99,15 @@ async function isNotExistingTarget (stats) {
   try {
     const result = await asyncLstat(fullPath)
     result.targetMissing = false
+    console.error(`${result.name} already exist on ${fullPath}`)
   } catch (err) {
     result.targetMissing = true
   }
   return result
+}
+
+function isNotAlreadyExist (stats) {
+  return stats.targetMissing
 }
 
 async function copyAndLink (currentPath, offset, limit, sampleSize) {
@@ -125,9 +130,11 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
   const mappedTargetMf = await mapFileToMount(notSkippedMf)
 
-  const checkDestinationMf = await Promise.all(mappedTargetMf.map(isNotExistingTarget))
+  const checkDestinationMf = await Promise.all(mappedTargetMf.map(getTargetStatus))
 
-  console.log(checkDestinationMf)
+  const targetMissingMf = checkDestinationMf.filter(isNotAlreadyExist)
+
+  console.log(targetMissingMf)
 
   return arguments
 
