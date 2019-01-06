@@ -139,7 +139,7 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
     const results = await copyDeleteSymlink(mf.source, mf.target, mf.folder, mf.name)
 
-    console.log(results
+    console.log(results)
   }, { concurrency: 1 })
 
 }
