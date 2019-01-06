@@ -28,8 +28,8 @@ async function parseMovieMounts (mounts) {
 async function getFileStats (file) {
   const result = await asyncLstat(file)
   return {
-    path: file,
-    folder: 'movies',
+    sourcePath: file,
+    targetFolder: 'movies',
     symlink: result.isSymbolicLink(),
     size: result.size
   }
@@ -40,13 +40,13 @@ function isNotSymlink (stats) {
 }
 
 function isNotSkipped (stats) {
-  return stats.name !== 'skip'
+  return stats.movieName !== 'skip'
 }
 
 function isNotSample (stats, sampleSize) {
   const sampleSizeBytes = sampleSize * 1024 * 1024 * 1024
 
-  if (stats.path.match(/sample/gi)) {
+  if (stats.sourcePath.match(/sample/gi)) {
     return stats.size > sampleSizeBytes
   }
 
@@ -55,13 +55,13 @@ function isNotSample (stats, sampleSize) {
 
 async function resolveNames (movies) {
   const results = Promise.map(movies, async (movie) => {
-    console.log('Processing: ', movie.path)
+    console.log('Processing: ', movie.sourcePath)
     const question = [
       {
         type: 'input',
-        name: 'name',
+        name: 'movieName',
         message: 'Movie name',
-        default: async () => searchMovie(movie.path),
+        default: async () => searchMovie(movie.sourcePath),
         validate: (value) => value.trim().length > 0
       }
     ]
@@ -83,7 +83,7 @@ async function mapFileToMount (movies) {
     }
     movieMountsInfo.some((mount) => {
       if (mount.available > result.size) {
-        result.target = mount.mount
+        result.targetMount = mount.mount
         mount.available -= result.size
         return true
       }
@@ -96,11 +96,11 @@ async function getTargetStatus (stats) {
   const result = {
     ...stats
   }
-  const fullPath = path.join(result.target, result.folder, nameCleaner(result.name))
+  const fullPath = path.join(result.targetMount, result.targetFolder, nameCleaner(result.movieName))
   try {
     await asyncLstat(fullPath)
     result.targetMissing = false
-    console.error(`${result.name} already exist on ${fullPath}`)
+    console.error(`${result.movieName} already exist on ${fullPath}`)
   } catch (err) {
     result.targetMissing = true
   }
@@ -137,7 +137,7 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
   return Promise.map(targetMissingMf, async (mf) => {
 
-    const results = await copyDeleteSymlink(mf.source, mf.target, mf.folder, mf.name)
+    const results = await copyDeleteSymlink(mf.sourcePath, mf.targetMount, mf.targetFolder, mf.movieName)
 
     console.log(results)
   }, { concurrency: 1 })
