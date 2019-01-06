@@ -10,6 +10,7 @@ const Promise = require('bluebird')
 const homeLabConfig = require('./get-config')
 const searchMovie = require('./search-movies')
 const nameCleaner = require('./filename-cleaner')
+const copyDeleteSymlink = require('./copy-delete-symlink')
 
 const asyncLstat = util.promisify(fs.lstat)
 const glob = util.promisify(globCallback)
@@ -134,9 +135,12 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
 
   const targetMissingMf = checkDestinationMf.filter(isNotAlreadyExist)
 
-  console.log(targetMissingMf)
+  return Promise.map(targetMissingMf, async (mf) => {
 
-  return arguments
+    const results = await copyDeleteSymlink(mf.source, mf.target, mf.folder, mf.name)
+
+    console.log(results
+  }, { concurrency: 1 })
 
 }
 
