@@ -35,8 +35,8 @@ module.exports = {
     const cwd = (argv.path) ? path.resolve(argv.path) : process.cwd()
     const { offset, limit, sample } = argv
 
-    const results = await copyAndLink(cwd, offset, limit, sample)
+    await copyAndLink(cwd, offset, limit, sample)
 
-    console.log(results)
+    console.log('Done')
   }
 }

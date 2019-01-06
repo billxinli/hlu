@@ -1,4 +1,5 @@
 const fs = require('fs-extra')
+const colors = require('colors')
 
 const disk = require('diskusage')
 const path = require('path')
@@ -136,10 +137,8 @@ async function copyAndLink (currentPath, offset, limit, sampleSize) {
   const targetMissingMf = checkDestinationMf.filter(isNotAlreadyExist)
 
   return Promise.map(targetMissingMf, async (mf) => {
-
-    const results = await copyDeleteSymlink(mf.sourcePath, mf.targetMount, mf.targetFolder, mf.movieName)
-
-    console.log(results)
+    console.log(colors.green(`Processing ${mf.movieName}`))
+    await copyDeleteSymlink(mf.sourcePath, mf.targetMount, mf.targetFolder, mf.movieName)
   }, { concurrency: 1 })
 
 }
