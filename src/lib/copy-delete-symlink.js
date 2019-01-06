@@ -20,32 +20,19 @@ async function ensureDirectoryDoesNotExist (path) {
 }
 
 async function makeNewAssetDirectory (path) {
-
-  console.log(`creating ${path}`)
-  return Promise.resolve(null)
-
-  // return await asyncMkdirs(path)
+  return await asyncMkdirs(path)
 }
 
 async function copyAsset (from, to) {
-
-  console.log(`copying ${from} -> ${to}`)
-  return Promise.resolve(null)
-  // return await asyncCopy(from, to)
+  return await asyncCopy(from, to)
 }
 
 async function deleteAsset (path) {
-
-  console.log(`deleting ${path}`)
-  return Promise.resolve(null)
-  // return await asyncUnlink(path)
+  return await asyncUnlink(path)
 }
 
 async function createSymlink (target, path) {
-
-  console.log(`symlink ${target} ${path}`)
-  return Promise.resolve(null)
-  // return await asyncSymlink(target, path)
+  return await asyncSymlink(target, path)
 }
 
 async function copyDeleteSymlink (source, target, folder, name) {
