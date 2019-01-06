@@ -2,7 +2,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const util = require('util')
 
-const nameCleaner = require('../../homelab/lib/filename-cleaner')
+const nameCleaner = require('./filename-cleaner')
 
 const asyncStat = util.promisify(fs.stat)
 const asyncMkdirs = util.promisify(fs.mkdirs)
